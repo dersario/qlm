@@ -44,7 +44,7 @@ poetry run python init_db.py
 
 ```bash
 # Запуск через Poetry скрипт (рекомендуется)
-poetry run start
+poetry run dev
 
 # Или напрямую через uvicorn
 poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
