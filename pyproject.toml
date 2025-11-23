@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "quicklead-manager"
+version = "0.1.0"
+description = "Веб-приложение для приема, обработки и распределения заявок с сайтов и лендингов"
+authors = ["Your Name <your.email@example.com>"]
+readme = "README.md"
+packages = [{include = "app"}]
+
+[tool.poetry.dependencies]
+python = "^3.13"
+fastapi = "^0.115.0"
+uvicorn = {extras = ["standard"], version = "^0.34.0"}
+sqlalchemy = "^2.0.36"
+alembic = "^1.14.0"
+pydantic = "^2.10.0"
+pydantic-settings = "^2.7.0"
+python-multipart = "^0.0.12"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+httpx = "^0.27.2"
+celery = "^5.4.0"
+redis = "^5.2.0"
+openpyxl = "^3.1.5"
+jinja2 = "^3.1.4"
+python-telegram-bot = "^21.10"
+slack-sdk = "^3.34.0"
+phonenumbers = "^8.13.50"
+email-validator = "^2.2.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+pytest-asyncio = "^0.21.1"
+black = "^23.11.0"
+isort = "^5.12.0"
+flake8 = "^6.1.0"
+
+[tool.poetry.scripts]
+dev = "app.cli:start_server"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
