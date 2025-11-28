@@ -3,9 +3,9 @@
 from datetime import datetime
 from typing import Annotated, Optional
 
-from pydantic import BaseModel, EmailStr, StringConstraints
+from pydantic import EmailStr, StringConstraints
 
-from app.models import UserRole
+from app.models.user import UserRole
 from app.schemas.base import BaseSchema
 
 
@@ -26,7 +26,7 @@ class UserCreate(UserBase):
     """Схема создания пользователя"""
 
     password: Annotated[
-        str, StringConstraints(strip_whitespace=True, min_length=6, max_length=100)
+        str, StringConstraints(strip_whitespace=True, min_length=8, max_length=100)
     ]
 
 
@@ -35,7 +35,9 @@ class UserUpdate(BaseSchema):
 
     email: Optional[EmailStr] = None
     username: Optional[
-        Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=100)]
+        Annotated[
+            str, StringConstraints(strip_whitespace=True, min_length=3, max_length=100)
+        ]
     ] = None
     full_name: Optional[
         Annotated[str, StringConstraints(strip_whitespace=True, max_length=255)]
@@ -56,8 +58,5 @@ class UserResponse(UserBase):
 class UserLogin(BaseSchema):
     """Схема для входа пользователя"""
 
-    username: Annotated[
-        str, StringConstraints(strip_whitespace=True, min_length=1)
-    ]
+    username: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
     password: Annotated[str, StringConstraints(min_length=6)]
-

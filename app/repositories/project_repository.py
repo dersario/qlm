@@ -6,7 +6,7 @@ from sqlalchemy import and_, select
 from sqlalchemy.orm import Session
 
 from app.auth import generate_api_key
-from app.models import Project, ProjectUser
+from app.models.project import Project, ProjectUser
 from app.schemas import ProjectCreate, ProjectUpdate
 
 
@@ -79,7 +79,6 @@ class ProjectRepository:
     @staticmethod
     def assign_user_to_project(db: Session, project_id: int, user_id: int) -> bool:
         """Назначить пользователя на проект"""
-        # Проверяем, не назначен ли уже пользователь
         stmt = select(ProjectUser).where(
             and_(ProjectUser.project_id == project_id, ProjectUser.user_id == user_id)
         )

@@ -9,7 +9,8 @@ from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database import get_db
-from app.models import User, UserRole
+from app.models.user import User
+from app.models.enums import UserRole
 
 # Настройка шифрования паролей
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")

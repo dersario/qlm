@@ -6,7 +6,8 @@ from typing import Any, Dict, List, Optional
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
-from app.models import Lead, LeadComment, LeadStatusHistory
+from app.models.enums import LeadStatus
+from app.models.lead import Lead, LeadComment, LeadStatusHistory
 from app.schemas import LeadCommentCreate, LeadCreate, LeadFilter, LeadUpdate
 
 
@@ -95,7 +96,10 @@ class LeadRepository:
 
     @staticmethod
     def update_lead(
-        db: Session, lead_id: int, lead_update: LeadUpdate, changed_by: int = None
+        db: Session,
+        lead_id: int,
+        lead_update: LeadUpdate | LeadStatus,
+        changed_by: int = None,
     ) -> Optional[Lead]:
         """Обновить заявку"""
         stmt = select(Lead).where(Lead.id == lead_id)
@@ -103,7 +107,12 @@ class LeadRepository:
         if db_lead:
             old_status = db_lead.status
 
-            update_data = lead_update.model_dump(exclude_unset=True)
+            if isinstance(lead_update, LeadUpdate):
+                update_data = lead_update.model_dump(exclude_unset=True)
+            if lead_update in LeadStatus:
+                update_data = LeadUpdate.model_validate(db_lead)
+                update_data.status = lead_update
+                update_data = update_data.model_dump(exclude_unset=True)
             for field, value in update_data.items():
                 setattr(db_lead, field, value)
 

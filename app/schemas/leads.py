@@ -5,7 +5,7 @@ from typing import Annotated, Any, Dict, List, Optional
 
 from pydantic import EmailStr, Field, StringConstraints
 
-from app.models import LeadStatus
+from app.models.lead import LeadStatus
 from app.schemas.base import BaseSchema
 from app.schemas.projects import ProjectResponse
 from app.schemas.users import UserResponse
@@ -58,6 +58,8 @@ class LeadCreateExternal(LeadBase):
 
 class LeadUpdate(BaseSchema):
     """Схема обновления заявки"""
+
+    model_config = {"from_attributes": True}
 
     name: Optional[
         Annotated[str, StringConstraints(strip_whitespace=True, max_length=255)]

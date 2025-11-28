@@ -3,9 +3,10 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.auth import authenticate_user, create_access_token
+from app.auth import authenticate_user, create_access_token, get_current_admin_user
 from app.config import settings
 from app.database import get_db
+from app.models.user import User
 from app.schemas import GetTokenSchema, Token, UserCreate, UserResponse
 from app.services.user_service import UserService
 
@@ -27,7 +28,7 @@ async def login(
 
     access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
     access_token = create_access_token(
-        data={"sub": user.email},  # ← ИСПРАВЛЕНО: user.email вместо user.username
+        data={"sub": user.email, "role": user.role},  # ← ИСПРАВЛЕНО: user.email вместо user.username
         expires_delta=access_token_expires,
     )
 
@@ -35,7 +36,11 @@ async def login(
 
 
 @router.post("/register", response_model=UserResponse)
-async def register(user: UserCreate, db: Session = Depends(get_db)) -> UserResponse:
+async def register(
+    user: UserCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_admin_user),
+) -> UserResponse:
     """Регистрация нового пользователя (только для администраторов)"""
     user_service = UserService(db)
     try:

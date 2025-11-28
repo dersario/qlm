@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.auth import get_current_active_user
 from app.database import get_db
 from app.models import User
+from app.models.enums import LeadStatus
 from app.schemas import (
     DashboardStats,
     LeadCommentCreate,
@@ -110,6 +111,23 @@ async def update_lead(
     try:
         return lead_service.update_lead(
             lead_id=lead_id, lead_update=lead_update, user=current_user
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.put("/{lead_id}/status", response_model=LeadResponse)
+async def update_lead_status(
+    lead_id: int,
+    new_status: LeadStatus,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """Обновление заявки"""
+    lead_service = LeadService(db)
+    try:
+        return lead_service.update_lead(
+            lead_id=lead_id, lead_update=new_status, user=current_user
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

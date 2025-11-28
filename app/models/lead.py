@@ -15,6 +15,7 @@ class Lead(Base):
 
     __tablename__ = "leads"
 
+
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     project_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("projects.id"), nullable=False

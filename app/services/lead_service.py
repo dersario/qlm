@@ -4,7 +4,9 @@ from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
-from app.models import Lead, User, UserRole
+from app.models.enums import LeadStatus
+from app.models.lead import Lead
+from app.models.user import User, UserRole
 from app.repositories.lead_repository import LeadRepository
 from app.repositories.project_repository import ProjectRepository
 from app.schemas import (
@@ -77,19 +79,20 @@ class LeadService:
         project = self.project_repository.get_project(self.db, lead.project_id)
         if not project:
             raise ValueError("Проект не найден")
-
-        return self.repository.create_lead(
+        lead = self.repository.create_lead(
             self.db,
             lead,
             ip_address=ip_address,
             user_agent=user_agent,
             referrer=referrer,
         )
+        
+        return lead
 
     def update_lead(
         self,
         lead_id: int,
-        lead_update: LeadUpdate,
+        lead_update: LeadUpdate | LeadStatus,
         user: Optional[User] = None,
     ) -> Optional[Lead]:
         """Обновить заявку"""
@@ -108,6 +111,30 @@ class LeadService:
         changed_by = user.id if user else None
         return self.repository.update_lead(
             self.db, lead_id, lead_update, changed_by=changed_by
+        )
+
+    def update_lead_status(
+        self,
+        lead_id: int,
+        new_status: str,
+        user: Optional[User] = None,
+    ) -> Optional[Lead]:
+        """Обновить заявку"""
+        lead = self.repository.get_lead(self.db, lead_id)
+        if not lead:
+            raise ValueError("Заявка не найдена")
+
+        # Проверяем доступ
+        if user and user.role != UserRole.ADMIN:
+            user_projects = [
+                assignment.project.id for assignment in user.project_assignments
+            ]
+            if lead.project_id not in user_projects:
+                raise ValueError("Недостаточно прав доступа к заявке")
+
+        changed_by = user.id if user else None
+        return self.repository.update_lead(
+            self.db, lead_id, new_status, changed_by=changed_by
         )
 
     def delete_lead(self, lead_id: int, user: Optional[User] = None) -> bool:

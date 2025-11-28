@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Annotated, Any, Dict, Optional
 
-from pydantic import StringConstraints
+from pydantic import Field, StringConstraints
 
 from app.schemas.base import BaseSchema
 
@@ -58,6 +58,7 @@ class ProjectResponse(ProjectBase):
     is_active: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
+    leads_count: Annotated[int, Field(default=0)]
 
 
 class ProjectUserAssignment(BaseSchema):

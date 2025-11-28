@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -9,6 +10,7 @@ from app.models import User
 from app.schemas import UserCreate, UserResponse, UserUpdate
 from app.services.user_service import UserService
 
+logger = logging.getLogger("api")
 router = APIRouter(prefix="/users", tags=["users"])
 
 
@@ -89,7 +91,7 @@ async def delete_user(
     """Удаление пользователя (только для администраторов)"""
     if current_user.id == user_id:
         raise HTTPException(status_code=400, detail="Нельзя удалить самого себя")
-
+    logger.info(f"Удаление пользователя {user_id}")
     user_service = UserService(db)
     success = user_service.delete_user(user_id=user_id)
     if not success:

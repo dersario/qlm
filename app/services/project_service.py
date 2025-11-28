@@ -34,7 +34,7 @@ class ProjectService:
         """Получить проекты пользователя"""
         if user.role.value == "admin":
             return self.get_projects()
-        return [assignment.project for assignment in user.project_assignments]
+        return [(assignment.project, len(assignment.project.leads)) for assignment in user.project_assignments]
 
     def create_project(self, project: ProjectCreate) -> Project:
         """Создать новый проект"""

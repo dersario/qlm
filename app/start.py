@@ -5,6 +5,9 @@
 
 import os
 import sys
+import logging
+
+logger = logging.Logger("main")
 
 # Добавляем текущую директорию в путь
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -19,7 +22,7 @@ def init_database():
 
         # Создаем все таблицы
         Base.metadata.create_all(bind=engine)
-        print("✅ Таблицы базы данных созданы")
+        logger.info("✅ Таблицы базы данных созданы")
 
         # Создаем администратора
         db = SessionLocal()
@@ -27,11 +30,11 @@ def init_database():
             # Проверяем, есть ли уже администраторы
             admin_exists = db.query(User).filter(User.role == UserRole.ADMIN).first()
             if admin_exists:
-                print("ℹ️  Администратор уже существует")
+                logger.info("ℹ️  Администратор уже существует")
             else:
                 # Создаем администратора
                 admin_user = User(
-                    email="admin@quicklead.local",
+                    email="admin@gmail.com",
                     username="admin",
                     hashed_password=get_password_hash("admin123"),
                     full_name="Admin",
@@ -43,7 +46,7 @@ def init_database():
                 db.commit()
                 db.refresh(admin_user)
 
-                print("✅ Администратор создан:")
+                logger.info("✅ Администратор создан:")
                 print("   Email: admin@quicklead.local")
                 print("   Username: admin")
                 print("   Password: admin123")

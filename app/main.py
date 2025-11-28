@@ -1,3 +1,4 @@
+import logging
 import os
 from contextlib import asynccontextmanager
 
@@ -135,6 +136,59 @@ async def root():
     """
 
 
+logger = logging.Logger("main")
+
+# Добавляем текущую директорию в путь
+
+
+def init_database():
+    """Инициализация базы данных"""
+    try:
+        from app.auth import get_password_hash
+        from app.database import Base, SessionLocal, engine
+        from app.models import User, UserRole
+
+        # Создаем все таблицы
+        Base.metadata.create_all(bind=engine)
+        logger.info("✅ Таблицы базы данных созданы")
+
+        # Создаем администратора
+        db = SessionLocal()
+        try:
+            # Проверяем, есть ли уже администраторы
+            admin_exists = db.query(User).filter(User.role == UserRole.ADMIN).first()
+            if admin_exists:
+                logger.info("ℹ️  Администратор уже существует")
+            else:
+                # Создаем администратора
+                admin_user = User(
+                    email="admin@gmail.com",
+                    username="admin",
+                    hashed_password=get_password_hash("admin123"),
+                    full_name="Admin",
+                    role=UserRole.ADMIN,
+                    is_active=True,
+                )
+
+                db.add(admin_user)
+                db.commit()
+                db.refresh(admin_user)
+
+                logger.info("✅ Администратор создан:")
+                print("   Email: admin@quicklead.local")
+                print("   Username: admin")
+                print("   Password: admin123")
+                print("⚠️  Обязательно смените пароль после первого входа!")
+        finally:
+            db.close()
+
+    except Exception as e:
+        print(f"❌ Ошибка инициализации: {e}")
+        return False
+
+    return True
+
+init_database()
 @app.get("/health")
 async def health_check():
     """Проверка работоспособности приложения"""
